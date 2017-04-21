@@ -35,10 +35,10 @@ Pseudo-code ignores all the `error`s returned that it should in real life check:
 
 ### Multiple subscribers via Exchange:
 
-    qm := ctx.Queue('', qcfg)
-    var xcfg *ezmq.ExchangeConfig = nil // that's OK
-    ex := ctx.Exchange('mybroadcast', xcfg, qm)
-    ex.PublishBizEvent(ezmq.NewBizEvent("evt1", "DisEvent"))
+    qm := ctx.Queue('', qcfg)   //  name MUST be empty
+    var xcfg *ezmq.ExchangeConfig = nil // as usual, nil = defaults
+    ex := ctx.Exchange('mybroadcast', xcfg, qm)  //  only pass `Queue`s that were declared with empty `name`
+    ex.PublishBizEvent(ezmq.NewBizEvent("evt1", "DisEvent"))  //  publish via `Exchange`, not via `Queue`, same API
     ex.PublishBizFoo(&ezmq.BizFoo{ Bar: true, Baz: 10 })
     ex.Publish(ezmq.NewBizEvent("evt2", "DatEvent")) // same thing just untyped
     ex.Publish(&ezmq.BizFoo{ Baz: 20 }) // ditto
@@ -50,12 +50,12 @@ Pseudo-code ignores all the `error`s returned that it should in real life check:
     qcfg.Pub.Persistent = true
     qcfg.Pub.QosMultipleWorkerInstances = true
 
-    // If used, prior to ctx.Exchange()
+    // Prior to ctx.Exchange(), if one is used
     var xcfg *ezmq.ExchangeConfig = ezmq.ConfigDefaultsExchange
     xcfg.Pub.Persistent = true
     xcfg.Pub.QosMultipleWorkerInstances = true
 
-    // Rest as above
+    // Rest as usual
 
 ## Usage
 
