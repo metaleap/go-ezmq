@@ -72,12 +72,12 @@ Pseudo-code ignores all the `error`s returned that it should in real life check:
     // Pass this then to ctx.Queue()
     var qcfg *ezmq.QueueConfig = ezmq.ConfigDefaultsQueue
     qcfg.Pub.Persistent = true
-    qcfg.Pub.QosMultipleWorkerInstances = true
+    qcfg.QosMultipleWorkerInstances = true
 
     // Pass this then to ctx.Exchange(), if one is used
     var xcfg *ezmq.ExchangeConfig = ezmq.ConfigDefaultsExchange
     xcfg.Pub.Persistent = true
-    xcfg.Pub.QosMultipleWorkerInstances = true
+    xcfg.QosMultipleWorkerInstances = true
     // Rest as usual
 ```
 
