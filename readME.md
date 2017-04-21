@@ -33,9 +33,9 @@ Pseudo-code ignores all the `error`s returned that it should in real life check:
     defer ctx.Close()
     var qcfg *ezmq.QueueConfig = nil                            // nil = use 'prudent' defaults
     //
-    qe := ctx.Queue('myevents', qcfg)
+    qe,_ := ctx.Queue('myevents', qcfg)
     qe.Publish(ezmq.NewBizEvent("evt1", "DisEvent"))
-    qf := ctx.Queue('myfoos', qcfg)
+    qf,_ := ctx.Queue('myfoos', qcfg)
     qf.Publish(&ezmq.BizFoo{ Bar: true, Baz: 10 })
     // some more for good measure:
     qe.Publish(ezmq.NewBizEvent("evt2", "DatEvent"))
@@ -57,9 +57,9 @@ Pseudo-code ignores all the `error`s returned that it should in real life check:
 ### Multiple subscribers via Exchange:
 
 ```go
-    qm := ctx.Queue('', qcfg)   //  name MUST be empty
+    qm,_ := ctx.Queue('', qcfg)   //  name MUST be empty
     var xcfg *ezmq.ExchangeConfig = nil // as above, nil = defaults
-    ex := ctx.Exchange('mybroadcast', xcfg, qm)  //  only pass `Queue`s that were declared with empty `name`
+    ex,_ := ctx.Exchange('mybroadcast', xcfg, qm)  //  only pass `Queue`s that were declared with empty `name`
     ex.Publish(ezmq.NewBizEvent("evt1", "DisEvent"))  //  publish via `Exchange`, not via `Queue`, same API
     ex.Publish(&ezmq.BizFoo{ Bar: true, Baz: 10 })
     ex.Publish(ezmq.NewBizEvent("evt2", "DatEvent")) // same thing just untyped
