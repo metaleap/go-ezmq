@@ -1,6 +1,6 @@
 //	Provides a higher-level, type-driven message-queuing API wrapping RabbitMQ / amqp.
 //
-//	## High-level API workflow:
+//	## High-Level API Workflow:
 //
 //	* make a `Context` (later, when done, `Close` it)
 //	* for **simple messaging**, use it to declare a named `Queue`, then
@@ -11,7 +11,7 @@
 //	    * then `Exchange.Publish(anything)`
 //	* for multiple **worker instances**, set 2 `bool`s, as below
 //
-//	## Example scenarios
+//	## Example Scenarios
 //
 //	"Line-of-business object" types used here, `BizEvent` and `BizFoo`, are included for
 //	*demo* purposes, to showcase how easily one may "type-safe-ish"ly broadcast and subscribe-to
