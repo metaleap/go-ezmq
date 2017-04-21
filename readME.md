@@ -1,6 +1,8 @@
 # ezmq
---
+
+```go
     import "github.com/metaleap/go-ezmq"
+```
 
 Provides a higher-level, type-driven message-queuing API wrapping RabbitMQ /
 amqp.
