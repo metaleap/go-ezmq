@@ -79,7 +79,7 @@ func (ctx *Context) ensureConnectionAndChannel() (err error) {
 	if ctx.conn == nil {
 		ctx.conn, err = amqp.Dial(ctx.connectionURI())
 	}
-	if ctx.conn != nil && ctx.ch == nil {
+	if err == nil && ctx.conn != nil && ctx.ch == nil {
 		ctx.ch, err = ctx.conn.Channel()
 	}
 	return
