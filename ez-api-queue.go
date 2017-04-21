@@ -13,7 +13,7 @@ type Queue struct {
 	//	If empty, this `Queue` MUST be used to bind to an `Exchange` constructed
 	//	via `Context.Exchange()`, and the `Config`'s `Durable` and `Exclusive`
 	//	fields will be ignored/overridden to suit the backing message-queue.
-	Name   string
+	Name string
 
 	//	Set to sensible defaults of `ConfigDefaultsQueue` at initialization.
 	Config *ConfigQueue
@@ -28,20 +28,21 @@ type ConfigQueue struct {
 	Exclusive                  bool
 	NoWait                     bool
 	Args                       map[string]interface{}
-	Pub                        *ConfigPub
-	Sub                        *ConfigSub
+	Pub                        ConfigPub
+	Sub                        ConfigSub
 	QosMultipleWorkerInstances bool
 }
 
 var (
-	//	Mustn't be `nil`. Quite sensible defaults during prototyping, until you
-	//	*know* what few things you need to tweak and why.
+	//	Can be modified, but mustn't be `nil`. Initially contains prudent
+	//	defaults quite sensible during prototyping, until you *know* what few
+	//	things you need to tweak and why.
 	//	Used by `Context.Queue()` if it is passed `nil` for its `cfg` arg.
-	ConfigDefaultsQueue = &ConfigQueue{Durable: true}
+	ConfigDefaultsQueue = &ConfigQueue{Durable: true, Sub: ConfigSub{AutoAck: true}}
 )
 
 //	Declares a queue with the specified `name` for publishing and subscribing.
-//	If `cfg` is `nil`, the current `ConfigDefaultsExchange` is used. For `name`,
+//	If `cfg` is `nil`, the current `ConfigDefaultsQueue` is used. For `name`,
 //	DO refer to the docs on `Queue.Name`.
 func (ctx *Context) Queue(name string, cfg *ConfigQueue) (q *Queue, err error) {
 	if cfg == nil {
@@ -76,7 +77,7 @@ func (ctx *Context) Queue(name string, cfg *ConfigQueue) (q *Queue, err error) {
 
 //	Serializes the specified `obj` to JSON and publishes it to this exchange.
 func (q *Queue) Publish(obj interface{}) error {
-	return q.ctx.publish(obj, "", q.Name, q.Config.Pub)
+	return q.ctx.publish(obj, "", q.Name, &q.Config.Pub)
 }
 
 //	Generic subscription mechanism used by the more convenient well-typed

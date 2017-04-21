@@ -9,7 +9,7 @@ type Exchange struct {
 	//	message-queue's "default" exchange --- however there is typically no
 	//	need to set up an `Exchange` to use that one, as it's used by default
 	//	for example when `Publish`ing directly via a `Queue`.
-	Name   string
+	Name string
 
 	//	Set to sensible defaults of `ConfigDefaultsExchange` at initialization.
 	Config *ConfigExchange
@@ -25,8 +25,7 @@ type ConfigExchange struct {
 	Internal   bool
 	NoWait     bool
 	Args       map[string]interface{}
-	Pub        *ConfigPub
-	Sub        *ConfigSub
+	Pub        ConfigPub
 	QueueBind  struct {
 		NoWait     bool
 		Args       map[string]interface{}
@@ -35,8 +34,9 @@ type ConfigExchange struct {
 }
 
 var (
-	//	Mustn't be `nil`. Quite sensible defaults during prototyping, until you
-	//	*know* what few things you need to tweak and why.
+	//	Can be modified, but mustn't be `nil`. Initially contains prudent
+	//	defaults quite sensible during prototyping, until you *know* what few
+	//	things you need to tweak and why.
 	//	Used by `Context.Exchange()` if it is passed `nil` for its `cfg` arg.
 	ConfigDefaultsExchange = &ConfigExchange{Durable: true, Type: "fanout"}
 )
@@ -62,5 +62,5 @@ func (ctx *Context) Exchange(name string, cfg *ConfigExchange, bindTo *Queue) (e
 
 //	Serializes the specified `obj` to JSON and publishes it to this exchange.
 func (ex *Exchange) Publish(obj interface{}) error {
-	return ex.ctx.publish(obj, ex.Name, ex.Config.QueueBind.RoutingKey, ex.Config.Pub)
+	return ex.ctx.publish(obj, ex.Name, ex.Config.QueueBind.RoutingKey, &ex.Config.Pub)
 }

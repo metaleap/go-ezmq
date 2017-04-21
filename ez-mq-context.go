@@ -1,3 +1,6 @@
+//	Provides a higher-level, type-driven message-queuing API wrapping RabbitMQ / amqp.
+//
+//	## markdown test
 package ezmq
 
 import (
@@ -7,27 +10,15 @@ import (
 	"github.com/streadway/amqp"
 )
 
-type ConfigPub struct {
-	Mandatory  bool
-	Immediate  bool
-	Persistent bool
-}
-
-type ConfigSub struct {
-	Consumer string
-	AutoAck  bool
-	NoLocal  bool
-}
-
-var (
-	ConfigDefaultsPub = &ConfigPub{}
-	ConfigDefaultsSub = &ConfigSub{AutoAck: true}
-)
-
-var LocalCtx = &Context{User: "guest", Password: "guest", Host: "localhost", Port: 5672}
-
+//	Provides access to the backing message-queue implementation, encapsulating
+//	the underlying connection/channel primitives. Set the fields
+//	(as fits the project context / local setup) before declaring the `Queue`s or
+//	`Exchange`s needed to publish and subscribe, as those calls will connect if
+//	the `Context` isn't already connected. Subsequent field mutations are of
+//	course ignored as the connection is kept alive. For clean-up or manual /
+//	pooled connection strategies, `Context` provides the `Close` method.
 type Context struct {
-	User     string
+	UserName string
 	Password string
 	Host     string
 	Port     uint16
@@ -36,6 +27,24 @@ type Context struct {
 	ch   *amqp.Channel
 }
 
+//	A convenient `Context` for local-machine based prototyping/testing.
+var LocalCtx = &Context{UserName: "guest", Password: "guest", Host: "localhost", Port: 5672}
+
+//	Specialist tweaks for `Publish`ing via a `Queue` or an `Exchange`.
+type ConfigPub struct {
+	Mandatory  bool
+	Immediate  bool
+	Persistent bool
+}
+
+//	Specialist tweaks used from within `Queue.SubscribeTo`.
+type ConfigSub struct {
+	Consumer string
+	AutoAck  bool
+	NoLocal  bool
+}
+
+//	Be SURE to call this when done with ezmq, to cleanly dispose of resources.
 func (ctx *Context) Close() (chanCloseErr, connCloseErr error) {
 	if ctx.ch != nil {
 		chanCloseErr = ctx.ch.Close()
@@ -51,8 +60,8 @@ func (ctx *Context) Close() (chanCloseErr, connCloseErr error) {
 func (ctx *Context) connectionUri() (uri string) {
 	//	there are more efficient ways to concat strings but this won't be called frequently/repeatedly, so we go for readability
 	uri = "amqp://"
-	if len(ctx.User) > 0 {
-		uri += ctx.User
+	if len(ctx.UserName) > 0 {
+		uri += ctx.UserName
 		if len(ctx.Password) > 0 {
 			uri += ":" + ctx.Password
 		}
@@ -79,9 +88,6 @@ func (ctx *Context) publish(obj interface{}, exchangeName string, routingKey str
 	var msgraw []byte
 	if err = ctx.ensureConnectionAndChannel(); err == nil {
 		if msgraw, err = json.Marshal(obj); err == nil {
-			if cfgPub == nil {
-				cfgPub = ConfigDefaultsPub
-			}
 			msgpub := amqp.Publishing{ContentType: "text/plain", Body: msgraw}
 			if cfgPub.Persistent {
 				msgpub.DeliveryMode = amqp.Persistent
