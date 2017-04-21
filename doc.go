@@ -14,7 +14,7 @@
 //
 //	ctx := ezmq.LocalCtx                                        // guest:guest@localhost:5672
 //	defer ctx.Close()
-//	var qcfg *ezmq.QueueConfig = nil                            // that's OK
+//	var qcfg *ezmq.QueueConfig = nil                            // nil = use 'prudent' defaults
 //
 //	qe := ctx.Queue('myevents', qcfg)
 //	qe.PublishBizEvent(ezmq.NewBizEvent("evt1", "DisEvent"))
