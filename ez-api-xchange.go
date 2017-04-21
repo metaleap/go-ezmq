@@ -64,7 +64,7 @@ func (ctx *Context) Exchange(name string, cfg *ExchangeConfig, bindTo *Queue) (e
 	return
 }
 
-//	Serializes the specified `obj` to JSON and publishes it to this exchange.
+//	Serializes the specified `obj` and publishes it to this exchange.
 func (ex *Exchange) Publish(obj interface{}) error {
 	return ex.ctx.publish(obj, ex.Name, ex.Config.QueueBind.RoutingKey, &ex.Config.Pub)
 }

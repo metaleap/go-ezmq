@@ -75,7 +75,7 @@ func (ctx *Context) Queue(name string, cfg *QueueConfig) (q *Queue, err error) {
 	return
 }
 
-//	Serializes the specified `obj` to JSON and publishes it to this exchange.
+//	Serializes the specified `obj` and publishes it to this exchange.
 func (q *Queue) Publish(obj interface{}) error {
 	return q.ctx.publish(obj, "", q.Name, &q.Config.Pub)
 }
