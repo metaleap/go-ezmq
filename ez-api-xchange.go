@@ -41,9 +41,10 @@ var (
 	ConfigDefaultsExchange = &ExchangeConfig{Durable: true, Type: "fanout"}
 )
 
-//	Declares an exchange with the specified `name` for publishing to multiple
-//	subscribers to the specified `Queue`. If `cfg` is `nil`, the
-//	current `ConfigDefaultsExchange` is used.
+//	Declares an "exchange" for publishing to multiple subscribers via the
+//	specified `Queue`. (If multiple-subscribers need not be supported, then no
+//	need for an `Exchange`: just use a simple `Queue` only.) If `cfg` is `nil`,
+//	the current `ConfigDefaultsExchange` is used. For `name`, see `Exchange.Name`.
 func (ctx *Context) Exchange(name string, cfg *ExchangeConfig, bindTo *Queue) (ex *Exchange, err error) {
 	if cfg == nil {
 		cfg = ConfigDefaultsExchange

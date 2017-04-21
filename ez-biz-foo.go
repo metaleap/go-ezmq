@@ -4,7 +4,7 @@ package ezmq
 //	This type as well as BizEvent showcase just how easily one would extend one's
 //	in-house / company-specific ezMQ wrapper library by additional custom
 //	message types as desired. In fact, both are ripe candidates for codegen-ing
-//	the methods associated with one's line-of-business struct:
+//	the well-typed wrapper methods associated with one's line-of-business struct:
 //	`Exchange.PublishXyz`, `Queue.PublishXyz`, and `Queue.SubscribeToXyzs`.
 type BizFoo struct {
 	Bar bool
