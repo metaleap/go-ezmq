@@ -31,8 +31,8 @@
 //	    qf.Publish(&ezmq.BizFoo{ Bar: true, Baz: 10 })
 //	    // some more for good measure:
 //	    qe.Publish(ezmq.NewBizEvent("evt2", "DatEvent"))
-//	    qf.Publish(&ezmq.BizFoo{ Baz: 20 })                         // same thing just untyped
-//	    qe.Publish(ezmq.NewBizEvent("evt3", "SomeEvent"))           // ditto
+//	    qf.Publish(&ezmq.BizFoo{ Baz: 20 })
+//	    qe.Publish(ezmq.NewBizEvent("evt3", "SomeEvent"))
 //
 //	### Simple subscribing via Queue:
 //
@@ -50,8 +50,8 @@
 //	    ex,_ := ctx.Exchange('mybroadcast', xcfg, qm)  //  only pass `Queue`s that were declared with empty `name`
 //	    ex.Publish(ezmq.NewBizEvent("evt1", "DisEvent"))  //  publish via `Exchange`, not via `Queue`, same API
 //	    ex.Publish(&ezmq.BizFoo{ Bar: true, Baz: 10 })
-//	    ex.Publish(ezmq.NewBizEvent("evt2", "DatEvent")) // same thing just untyped
-//	    ex.Publish(&ezmq.BizFoo{ Baz: 20 }) // ditto
+//	    ex.Publish(ezmq.NewBizEvent("evt2", "DatEvent"))
+//	    ex.Publish(&ezmq.BizFoo{ Baz: 20 })
 //
 //	### Enabling multiple worker instances:
 //
