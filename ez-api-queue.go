@@ -81,7 +81,7 @@ func (q *Queue) Publish(obj interface{}) error {
 }
 
 //	Generic subscription mechanism used by the more convenient well-typed
-//	wrapper functions such as `SubscribeToEvents` and `SubscribeToFoos`:
+//	wrapper functions such as `SubscribeToBizEvents` and `SubscribeToBizFoos`:
 //
 //	Subscribe to messages only of the Type returned by the specified
 //	`makeEmptyObjForDeserialization` constructor function used to allocate a

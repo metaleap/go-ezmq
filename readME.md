@@ -2,7 +2,6 @@
 
 ```go
     import "github.com/metaleap/go-ezmq"
-```
 
 Provides a higher-level, type-driven message-queuing API wrapping RabbitMQ /
 amqp.
@@ -19,58 +18,57 @@ Pseudo-code ignores all the `error`s returned that it should in real life check:
 ### Simple publishing via Queue:
 
 ```go
-ctx := ezmq.LocalCtx                                        // guest:guest@localhost:5672
-defer ctx.Close()
-var qcfg *ezmq.QueueConfig = nil                            // nil = use 'prudent' defaults
-
-qe := ctx.Queue('myevents', qcfg)
-qe.PublishBizEvent(ezmq.NewBizEvent("evt1", "DisEvent"))
-qf := ctx.Queue('myfoos', qcfg)
-qf.PublishBizFoo(&ezmq.BizFoo{ Bar: true, Baz: 10 })
-// some more for good measure:
-qe.PublishBizEvent(ezmq.NewBizEvent("evt2", "DatEvent"))
-qf.Publish(&ezmq.BizFoo{ Baz: 20 })                         // same thing just untyped
-qe.Publish(ezmq.NewBizEvent("evt3", "SomeEvent"))           // ditto
+    ctx := ezmq.LocalCtx                                        // guest:guest@localhost:5672
+    defer ctx.Close()
+    var qcfg *ezmq.QueueConfig = nil                            // nil = use 'prudent' defaults
+    //
+    qe := ctx.Queue('myevents', qcfg)
+    qe.Publish(ezmq.NewBizEvent("evt1", "DisEvent"))
+    qf := ctx.Queue('myfoos', qcfg)
+    qf.Publish(&ezmq.BizFoo{ Bar: true, Baz: 10 })
+    // some more for good measure:
+    qe.Publish(ezmq.NewBizEvent("evt2", "DatEvent"))
+    qf.Publish(&ezmq.BizFoo{ Baz: 20 })                         // same thing just untyped
+    qe.Publish(ezmq.NewBizEvent("evt3", "SomeEvent"))           // ditto
 ```
 
 ### Simple subscribing via Queue:
 
 ```go
-onBizEvent := func(evt *ezmq.BizEvent) {
-    println(evt.Name)
-}
-qe.SubscribeToBizEvents(onBizEvent)
-qf.SubscribeToBizFoos(func(foo *ezmq.Foo) { mylogger.LogAnything(foo) })
-for true { /* we loop until we won't */ }
+    onBizEvent := func(evt *ezmq.BizEvent) {
+        println(evt.Name)
+    }
+    qe.SubscribeToBizEvents(onBizEvent)
+    qf.SubscribeToBizFoos(func(foo *ezmq.Foo) { mylogger.LogAnything(foo) })
+    for true { /* we loop until we won't */ }
 ```
 
 ### Multiple subscribers via Exchange:
 
 ```go
-qm := ctx.Queue('', qcfg)   //  name MUST be empty
-var xcfg *ezmq.ExchangeConfig = nil // as usual, nil = defaults
-ex := ctx.Exchange('mybroadcast', xcfg, qm)  //  only pass `Queue`s that were declared with empty `name`
-ex.PublishBizEvent(ezmq.NewBizEvent("evt1", "DisEvent"))  //  publish via `Exchange`, not via `Queue`, same API
-ex.PublishBizFoo(&ezmq.BizFoo{ Bar: true, Baz: 10 })
-ex.Publish(ezmq.NewBizEvent("evt2", "DatEvent")) // same thing just untyped
-ex.Publish(&ezmq.BizFoo{ Baz: 20 }) // ditto
+    qm := ctx.Queue('', qcfg)   //  name MUST be empty
+    var xcfg *ezmq.ExchangeConfig = nil // as usual, nil = defaults
+    ex := ctx.Exchange('mybroadcast', xcfg, qm)  //  only pass `Queue`s that were declared with empty `name`
+    ex.Publish(ezmq.NewBizEvent("evt1", "DisEvent"))  //  publish via `Exchange`, not via `Queue`, same API
+    ex.Publish(&ezmq.BizFoo{ Bar: true, Baz: 10 })
+    ex.Publish(ezmq.NewBizEvent("evt2", "DatEvent")) // same thing just untyped
+    ex.Publish(&ezmq.BizFoo{ Baz: 20 }) // ditto
 ```
 
 ### Enabling multiple worker instances:
 
 ```go
-// Prior to ctx.Queue()
-var qcfg *ezmq.QueueConfig = ezmq.ConfigDefaultsQueue
-qcfg.Pub.Persistent = true
-qcfg.Pub.QosMultipleWorkerInstances = true
-//
-// Prior to ctx.Exchange(), if one is used
-var xcfg *ezmq.ExchangeConfig = ezmq.ConfigDefaultsExchange
-xcfg.Pub.Persistent = true
-xcfg.Pub.QosMultipleWorkerInstances = true
-// Rest as usual
-```
+    // Prior to ctx.Queue()
+    var qcfg *ezmq.QueueConfig = ezmq.ConfigDefaultsQueue
+    qcfg.Pub.Persistent = true
+    qcfg.Pub.QosMultipleWorkerInstances = true
 
+    // Prior to ctx.Exchange(), if one is used
+    var xcfg *ezmq.ExchangeConfig = ezmq.ConfigDefaultsExchange
+    xcfg.Pub.Persistent = true
+    xcfg.Pub.QosMultipleWorkerInstances = true
+    // Rest as usual
+```
 
 ## Usage
 
@@ -146,12 +144,6 @@ types as desired. In fact, both are ripe candidates for codegen-ing the
 well-typed wrapper methods associated with one's line-of-business struct:
 `Exchange.PublishXyz`, `Queue.PublishXyz`, and `Queue.SubscribeToXyzs`.
 
-#### func  NewBizFoo
-
-```go
-func NewBizFoo(bar bool, baz int) *BizFoo
-```
-
 #### type Context
 
 ```go
@@ -225,20 +217,6 @@ func (ex *Exchange) Publish(obj interface{}) error
 ```
 Serializes the specified `obj` to JSON and publishes it to this exchange.
 
-#### func (*Exchange) PublishBizEvent
-
-```go
-func (ex *Exchange) PublishBizEvent(evt *BizEvent) error
-```
-Convenience short-hand for `ex.Publish(evt)`
-
-#### func (*Exchange) PublishBizFoo
-
-```go
-func (ex *Exchange) PublishBizFoo(foo *BizFoo) error
-```
-Convenience short-hand for `ex.Publish(foo)`
-
 #### type ExchangeConfig
 
 ```go
@@ -288,27 +266,13 @@ func (q *Queue) Publish(obj interface{}) error
 ```
 Serializes the specified `obj` to JSON and publishes it to this exchange.
 
-#### func (*Queue) PublishBizEvent
-
-```go
-func (q *Queue) PublishBizEvent(evt *BizEvent) error
-```
-Convenience short-hand for `q.Publish(evt)`
-
-#### func (*Queue) PublishBizFoo
-
-```go
-func (q *Queue) PublishBizFoo(foo *BizFoo) error
-```
-Convenience short-hand for `q.Publish(foo)`
-
 #### func (*Queue) SubscribeTo
 
 ```go
 func (q *Queue) SubscribeTo(makeEmptyObjForDeserialization func() interface{}, onMsg func(interface{})) (err error)
 ```
 Generic subscription mechanism used by the more convenient well-typed wrapper
-functions such as `SubscribeToEvents` and `SubscribeToFoos`:
+functions such as `SubscribeToBizEvents` and `SubscribeToBizFoos`:
 
 Subscribe to messages only of the Type returned by the specified
 `makeEmptyObjForDeserialization` constructor function used to allocate a new
@@ -371,7 +335,7 @@ type TweakSub struct {
 	AutoAck  bool
 	NoLocal  bool
 
-	// Keep 'nil` to ignore (or set, to handle) unlikely-but-not-impossible
+	//	Keep 'nil` to ignore (or set, to handle) unlikely-but-not-impossible
 	//	manual-(non-auto)-delivery-acknowledgement errors. RETURN: `true` to
 	//	"keep going" (keep listening and also pass the decoded value if any to
 	//	subscribers), or `false` to discard the value and stop listening on
