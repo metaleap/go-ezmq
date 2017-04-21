@@ -27,8 +27,10 @@ type Context struct {
 	ch   *amqp.Channel
 }
 
-//	A convenient `Context` for local-machine based prototyping/testing.
-var LocalCtx = &Context{UserName: "guest", Password: "guest", Host: "localhost", Port: 5672}
+var (
+	//	A convenient `Context` for local-machine based prototyping/testing.
+	LocalCtx = &Context{UserName: "guest", Password: "guest", Host: "localhost", Port: 5672}
+)
 
 //	Specialist tweaks for `Publish`ing via a `Queue` or an `Exchange`.
 type TweakPub struct {
