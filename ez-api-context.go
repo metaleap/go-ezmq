@@ -43,6 +43,13 @@ type TweakSub struct {
 	Consumer string
 	AutoAck  bool
 	NoLocal  bool
+
+	// Keep 'nil` to ignore (or set, to handle) unlikely-but-not-impossible
+	//	manual-(non-auto)-delivery-acknowledgement errors. RETURN: `true` to
+	//	"keep going" (keep listening and also pass the decoded value if any to
+	//	subscribers), or `false` to discard the value and stop listening on
+	//	behalf of the affected subscribers
+	OnAckError func(error) bool
 }
 
 //	Be SURE to call this when done with ezmq, to cleanly dispose of resources.
@@ -85,6 +92,7 @@ func (ctx *Context) ensureConnectionAndChannel() (err error) {
 	return
 }
 
+//	core underlying implementation for public `Publish` API methods
 func (ctx *Context) publish(obj interface{}, exchangeName string, routingKey string, cfgPub *TweakPub) (err error) {
 	var msgraw []byte
 	if err = ctx.ensureConnectionAndChannel(); err == nil {

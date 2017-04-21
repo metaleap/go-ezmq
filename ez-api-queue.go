@@ -54,15 +54,12 @@ func (ctx *Context) Queue(name string, cfg *QueueConfig) (q *Queue, err error) {
 	q = &Queue{ctx: ctx, Config: cfg}
 	if err = ctx.ensureConnectionAndChannel(); err == nil {
 		exclusive, durable := cfg.Exclusive, cfg.Durable
-		if len(name) == 0 {
-			exclusive = true
-			durable = false
-		}
-		if exclusive != cfg.Exclusive || durable != cfg.Durable {
-			nucfg := *cfg
-			nucfg.Exclusive, nucfg.Durable = exclusive, durable
-			q.Config = &nucfg
-			cfg = q.Config
+		if isforbindingtoexchange := len(name) == 0; isforbindingtoexchange {
+			if durable, exclusive = false, true; exclusive != cfg.Exclusive || durable != cfg.Durable {
+				nucfg := *cfg
+				nucfg.Exclusive, nucfg.Durable = exclusive, durable
+				q.Config, cfg = &nucfg, &nucfg
+			}
 		}
 		var _q amqp.Queue
 		if _q, err = ctx.ch.QueueDeclare(name, durable, cfg.AutoDelete, exclusive, cfg.NoWait, cfg.Args); err == nil {
@@ -97,28 +94,36 @@ func (q *Queue) SubscribeTo(makeEmptyObjForDeserialization func() interface{}, o
 	if err = q.ctx.ensureConnectionAndChannel(); err == nil {
 		cfgSub := q.Config.Sub
 		var msgchan <-chan amqp.Delivery
-		msgchan, err = q.ctx.ch.Consume(q.Name, cfgSub.Consumer, cfgSub.AutoAck && !q.Config.QosMultipleWorkerInstances, q.Config.Exclusive, cfgSub.NoLocal, q.Config.NoWait, q.Config.Args)
+		autoAck := cfgSub.AutoAck && !q.Config.QosMultipleWorkerInstances
+		msgchan, err = q.ctx.ch.Consume(q.Name, cfgSub.Consumer, autoAck, q.Config.Exclusive, cfgSub.NoLocal, q.Config.NoWait, q.Config.Args)
 		if err == nil && msgchan != nil {
-			listen := func() {
+			keepListening := func() {
 				for msgdelivery := range msgchan {
-					if !cfgSub.AutoAck {
-						if ackerr := msgdelivery.Ack(false); ackerr != nil {
-							panic("ezmq.Queue.SubscribeTo$listen$msgdelivery.Ack: failed to ack, but error logging wasn't ordered, time to implement!")
+					ptr, ackErr := decodeMsgForSubscribers(&msgdelivery, !autoAck, q.Config.Exclusive, makeEmptyObjForDeserialization)
+					if ackErr != nil && cfgSub.OnAckError != nil { // we're looping in a goroutine so this one, the client can handle or ignore as preferred
+						if keepgoing := cfgSub.OnAckError(ackErr); !keepgoing {
+							return
 						}
-					}
-					obj := makeEmptyObjForDeserialization()
-					jsonerr := json.Unmarshal(msgdelivery.Body, &obj)
-					var ptr interface{}
-					if jsonerr == nil { // else some sort of msg passed by not fitting into obj and thus of no interest to *these* here subscribers
-						ptr = &obj
 					}
 					if ptr != nil {
 						onMsg(ptr)
 					}
 				}
 			}
-			go listen()
+			go keepListening()
 		}
+	}
+	return
+}
+
+func decodeMsgForSubscribers(msgDelivery *amqp.Delivery, shouldAck bool, exclusive bool, constructor func() interface{}) (ptr interface{}, ackErr error) {
+	newvalue := constructor()
+	if jsonerr := json.Unmarshal(msgDelivery.Body, &newvalue); jsonerr == nil {
+		ptr = &newvalue
+	} // else some sort of msg passed by not fitting into newvalue and thus of no interest to *these* here subscribers
+	if mayack := ptr != nil || exclusive; mayack && shouldAck {
+		// TODO: not 100% clear yet if proper ack semantics applied here, erring on the side of caution
+		ackErr = msgDelivery.Ack(false) // ack only if either success or no other susbcriber-listeners will ever ack it (and only if we should in the first place)
 	}
 	return
 }
