@@ -10,9 +10,11 @@ import (
 //	`Context.Queue()`, and fields are not to be mutated thereafter! It remains
 //	associated with that `Context` for all its `Publish` and `SubscribeTo` calls.
 type Queue struct {
-	//	If empty, this `Queue` MUST be used to bind to an `Exchange` constructed
-	//	via `Context.Exchange()`, and the `Config`'s `Durable` and `Exclusive`
-	//	fields will be ignored/overridden to suit the backing message-queue.
+	//	Contains either the `name` given at initialization to `Context.Queue()`,
+	//	or a random identifier if that was empty: in such cases, this `Queue`
+	//	MUST be used to bind to an `Exchange` constructed via `Context.Exchange()`,
+	//	and the `Config` will be set to a newly created copy of the effective
+	//	`cfg` in `Context.Queue()`, with tweaked `Durable` and `Exclusive` fields.
 	Name string
 
 	//	Set to sensible defaults of `ConfigDefaultsQueue` at initialization.
