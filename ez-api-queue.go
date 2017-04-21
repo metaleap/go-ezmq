@@ -46,7 +46,7 @@ var (
 //	DO refer to the docs on `Queue.Name`.
 func (ctx *Context) Queue(name string, cfg *QueueConfig) (q *Queue, err error) {
 	if cfg == nil {
-		cfg = ConfigDefaultsQueue // nil implies zeroed-defaults, seems acceptable to amqp
+		cfg = ConfigDefaultsQueue
 	}
 	q = &Queue{ctx: ctx, Config: cfg}
 	if err = ctx.ensureConnectionAndChannel(); err == nil {

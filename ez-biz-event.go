@@ -4,36 +4,36 @@ import (
 	"time"
 )
 
-type Event struct {
+type BizEvent struct {
 	Id   string
 	Name string
 	Date time.Time
 }
 
-func NewEvent(id string, name string) *Event {
-	return NewEventAt(id, name, time.Now())
+func NewBizEvent(id string, name string) *BizEvent {
+	return NewBizEventAt(id, name, time.Now())
 }
 
-func NewEventAt(id string, name string, date time.Time) *Event {
-	return &Event{Id: id, Name: name, Date: date}
+func NewBizEventAt(id string, name string, date time.Time) *BizEvent {
+	return &BizEvent{Id: id, Name: name, Date: date}
 }
 
-func (ex *Exchange) PublishEvent(evt *Event) error {
+func (ex *Exchange) PublishBizEvent(evt *BizEvent) error {
 	return ex.Publish(evt)
 }
 
-func (q *Queue) PublishEvent(evt *Event) error {
+func (q *Queue) PublishBizEvent(evt *BizEvent) error {
 	return q.Publish(evt)
 }
 
-func (q *Queue) SubscribeToEvents(subscribers ...func(*Event)) (err error) {
-	makeEmptyEventForDeserialization := func() interface{} { return Event{} }
-	return q.SubscribeTo(makeEmptyEventForDeserialization, func(evt interface{}) {
-		event, ok := evt.(*Event)
-		if ok && event != nil { // yeah tautological but explicit, we want a non-nil whatever the semantics of "ok"
+func (q *Queue) SubscribeToBizEvents(subscribers ...func(*BizEvent)) (err error) {
+	makeEmptyBizEventForDeserialization := func() interface{} { return BizEvent{} }
+	return q.SubscribeTo(makeEmptyBizEventForDeserialization, func(ptr interface{}) {
+		evt, ok := ptr.(*BizEvent)
+		if ok && evt != nil { // yeah tautological but explicit, we want a non-nil whatever the semantics of "ok"
 			for _, onevent := range subscribers {
-				onevent(event)
+				onevent(evt)
 			}
-		} // else it was something other than an Event arriving in this queue/channel/routing-key/yadda-yadda and we're not listening to that, we're subscribed to Events here
+		} // else it was something other than an BizEvent arriving in this queue/channel/routing-key/yadda-yadda and we're not listening to that, we're subscribed to BizEvents here
 	})
 }
