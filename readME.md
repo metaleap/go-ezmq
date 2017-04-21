@@ -32,6 +32,8 @@ qe.Publish(ezmq.NewBizEvent("evt3", "SomeEvent")) // ditto
 
 ### Simple subscribing via Queue:
 
+```go
+
 onBizEvent := func(evt *ezmq.BizEvent) {
 
     println(evt.Name)
@@ -39,7 +41,11 @@ onBizEvent := func(evt *ezmq.BizEvent) {
 } qe.SubscribeToBizEvents(onBizEvent) qf.SubscribeToBizFoos(func(foo *ezmq.Foo)
 { mylogger.LogAnything(foo) }) for true { /* we loop until we won't */ }
 
+```
+
 ### Multiple subscribers via Exchange:
+
+```go
 
 qm := ctx.Queue('', qcfg) // name MUST be empty var xcfg *ezmq.ExchangeConfig =
 nil // as usual, nil = defaults ex := ctx.Exchange('mybroadcast', xcfg, qm) //
@@ -49,7 +55,11 @@ ex.PublishBizEvent(ezmq.NewBizEvent("evt1", "DisEvent")) // publish via
 Baz: 10 }) ex.Publish(ezmq.NewBizEvent("evt2", "DatEvent")) // same thing just
 untyped ex.Publish(&ezmq.BizFoo{ Baz: 20 }) // ditto
 
+```
+
 ### Enabling multiple worker instances:
+
+```go
 
 // Prior to ctx.Queue() var qcfg *ezmq.QueueConfig = ezmq.ConfigDefaultsQueue
 qcfg.Pub.Persistent = true qcfg.Pub.QosMultipleWorkerInstances = true
@@ -57,6 +67,8 @@ qcfg.Pub.Persistent = true qcfg.Pub.QosMultipleWorkerInstances = true
 // Prior to ctx.Exchange(), if one is used var xcfg *ezmq.ExchangeConfig =
 ezmq.ConfigDefaultsExchange xcfg.Pub.Persistent = true
 xcfg.Pub.QosMultipleWorkerInstances = true
+
+```
 
 // Rest as usual
 
