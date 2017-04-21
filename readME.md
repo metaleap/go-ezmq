@@ -5,7 +5,20 @@
 Provides a higher-level, type-driven message-queuing API wrapping RabbitMQ /
 amqp.
 
-## markdown test
+## Scenarios
+
+### Simple publishing via Queue:
+
+    ctx := ezmq.LocalCtx
+    defer ctx.Close()
+    var cfg *ezmq.QueueConfig = nil // that's OK
+    qe := ctx.Queue('myevents', cfg)
+    qe.PublishBizEvent(ezmq.NewBizEvent("evt1", "DisEvent"))
+    qf := ctx.Queue('myfoos', cfg)
+    qf.PublishBizFoo(&ezmq.BizFoo{ Bar: true, Baz: 10 })
+    qe.PublishBizEvent(ezmq.NewBizEvent("evt2", "DatEvent"))
+    qf.PublishBizFoo(&ezmq.BizFoo{ Baz: 20 })
+    qe.PublishBizEvent(ezmq.NewBizEvent("evt3", "SomeEvent"))
 
 ## Usage
 

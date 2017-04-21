@@ -7,12 +7,13 @@
 //	    ctx := ezmq.LocalCtx
 //	    defer ctx.Close()
 //	    var cfg *ezmq.QueueConfig = nil // that's OK
-//	    q := ctx.Queue('myqueue', cfg)
-//	    q.PublishBizEvent(ezmq.NewBizEvent("evt1", "DisEvent"))
-//	    q.PublishBizFoo(&ezmq.BizFoo{ Bar: true, Baz: 10 })
-//	    q.PublishBizEvent(ezmq.NewBizEvent("evt2", "DatEvent"))
-//	    q.PublishBizFoo(&ezmq.BizFoo{ Baz: 20 })
-//	    q.PublishBizEvent(ezmq.NewBizEvent("evt3", "SomeEvent"))
+//	    qe := ctx.Queue('myevents', cfg)
+//	    qe.PublishBizEvent(ezmq.NewBizEvent("evt1", "DisEvent"))
+//	    qf := ctx.Queue('myfoos', cfg)
+//	    qf.PublishBizFoo(&ezmq.BizFoo{ Bar: true, Baz: 10 })
+//	    qe.PublishBizEvent(ezmq.NewBizEvent("evt2", "DatEvent"))
+//	    qf.PublishBizFoo(&ezmq.BizFoo{ Baz: 20 })
+//	    qe.PublishBizEvent(ezmq.NewBizEvent("evt3", "SomeEvent"))
 //
 package ezmq
 
