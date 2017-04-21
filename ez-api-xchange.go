@@ -18,6 +18,7 @@ type Exchange struct {
 }
 
 //	Specialist tweaks for declaring an `Exchange` to the backing message-queue.
+//	If you don't know their meaning, you're better off taking our defaults.
 type ExchangeConfig struct {
 	Type       string // fanout/direct/topic/headers
 	Args       map[string]interface{}

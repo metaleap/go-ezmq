@@ -30,6 +30,7 @@ var (
 )
 
 //	Specialist tweaks for `Publish`ing via a `Queue` or an `Exchange`.
+//	If you don't know their meaning, you're better off taking our defaults.
 type TweakPub struct {
 	Mandatory  bool
 	Immediate  bool
@@ -37,6 +38,7 @@ type TweakPub struct {
 }
 
 //	Specialist tweaks used from within `Queue.SubscribeTo`.
+//	If you don't know their meaning, you're better off taking our defaults.
 type TweakSub struct {
 	Consumer string
 	AutoAck  bool

@@ -24,6 +24,7 @@ type Queue struct {
 }
 
 //	Specialist tweaks for declaring a `Queue` to the backing message-queue.
+//	If you don't know their meaning, you're better off taking our defaults.
 type QueueConfig struct {
 	Durable                    bool
 	AutoDelete                 bool
