@@ -2,11 +2,13 @@
 //
 //	## High-level API workflow:
 //
-//	* make a `Context`
-//	* use it to declare a named `Queue`
-//	* `Queue.Publish(anything)`
-//	* `Queue.SubscribeTo<Thing>s`
-//	* to publish to multiple subscribers, use the `Context` and an unnamed `Queue` to declare an `Exchange`, then `Exchange.Publish(anything)`
+//	* make a `Context` (later, when done, `Close` it)
+//	* for simple messaging, use it to declare a named `Queue`
+//	    * `Queue.Publish(anything)`
+//	    * `Queue.SubscribeTo<Thing>s`
+//	* to publish to multiple subscribers
+//	    * use the `Context` and an unnamed `Queue` to declare an `Exchange`,
+//	    * then `Exchange.Publish(anything)`
 //	* for multiple worker instances, set 2 `bool`s, as below
 //
 //	## Example scenarios
