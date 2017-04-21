@@ -60,10 +60,10 @@
 //	    qcfg.Pub.Persistent = true
 //	    qcfg.QosMultipleWorkerInstances = true
 //
-//	    // Pass this then to ctx.Exchange(), if one is used
+//	    // Pass this then to ctx.Exchange(), if one is used (WITH a queue declared with the above)
 //	    var xcfg *ezmq.ExchangeConfig = ezmq.ConfigDefaultsExchange
 //	    xcfg.Pub.Persistent = true
-//	    xcfg.QosMultipleWorkerInstances = true
+//
 //	    // Rest as usual
 //
 //
