@@ -1,14 +1,25 @@
 package ezmq
 
+//	Used in-place-of / in-conjunction-with a `Queue` when needing to publish to
+//	multiple subscribers. ONLY to be constructed via `Context.Exchange()`, and
+//	fields are not to be mutated thereafter! It remains associated with that
+//	`Context` for all its `Publish` calls.
 type Exchange struct {
-	Config *ConfigExchange
+	//	Shouldn't be empty, although it's legal: that implies the backing
+	//	message-queue's "default" exchange --- however there is typically no
+	//	need to set up an `Exchange` to use that one, as it's used by default
+	//	for example when `Publish`ing directly via a `Queue`.
 	Name   string
+
+	//	Set to sensible defaults of `ConfigDefaultsExchange` at initialization.
+	Config *ConfigExchange
 
 	ctx *Context
 }
 
+//	Specialist tweaks for declaring an `Exchange` to the backing message-queue.
 type ConfigExchange struct {
-	Type       string // fanout/direct/topic/headers --- how about enums one day, go..
+	Type       string // fanout/direct/topic/headers
 	Durable    bool
 	AutoDelete bool
 	Internal   bool
@@ -16,26 +27,26 @@ type ConfigExchange struct {
 	Args       map[string]interface{}
 	Pub        *ConfigPub
 	Sub        *ConfigSub
-	QueueBind  *ConfigExchangeQueueBind
-}
-
-type ConfigExchangeQueueBind struct {
-	NoWait     bool
-	Args       map[string]interface{}
-	RoutingKey string
+	QueueBind  struct {
+		NoWait     bool
+		Args       map[string]interface{}
+		RoutingKey string
+	}
 }
 
 var (
-	//	Mustn't be `nil`. Sensible defaults during prototyping, until you *know* what you need to tweak and why.
+	//	Mustn't be `nil`. Quite sensible defaults during prototyping, until you
+	//	*know* what few things you need to tweak and why.
 	//	Used by `Context.Exchange()` if it is passed `nil` for its `cfg` arg.
 	ConfigDefaultsExchange = &ConfigExchange{Durable: true, Type: "fanout"}
-
-	ConfigDefaultsExchangeQueueBind = &ConfigExchangeQueueBind{}
 )
 
+//	Declares an exchange with the specified `name` for publishing to multiple
+//	subscribers to the specified `Queue`. If `cfg` is `nil`, the
+//	current `ConfigDefaultsExchange` is used.
 func (ctx *Context) Exchange(name string, cfg *ConfigExchange, bindTo *Queue) (ex *Exchange, err error) {
 	if cfg == nil {
-		cfg = ConfigDefaultsExchange // nil implies zeroed-defaults, seems acceptable to amqp
+		cfg = ConfigDefaultsExchange
 	}
 	ex = &Exchange{ctx: ctx, Name: name, Config: cfg}
 	if err = ctx.ensureConnectionAndChannel(); err == nil {
@@ -49,6 +60,7 @@ func (ctx *Context) Exchange(name string, cfg *ConfigExchange, bindTo *Queue) (e
 	return
 }
 
+//	Serializes the specified `obj` to JSON and publishes it to this exchange.
 func (ex *Exchange) Publish(obj interface{}) error {
 	return ex.ctx.publish(obj, ex.Name, ex.Config.QueueBind.RoutingKey, ex.Config.Pub)
 }
