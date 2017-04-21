@@ -12,20 +12,20 @@ type Exchange struct {
 	Name string
 
 	//	Set to sensible defaults of `ConfigDefaultsExchange` at initialization.
-	Config *ConfigExchange
+	Config *ExchangeConfig
 
 	ctx *Context
 }
 
 //	Specialist tweaks for declaring an `Exchange` to the backing message-queue.
-type ConfigExchange struct {
+type ExchangeConfig struct {
 	Type       string // fanout/direct/topic/headers
 	Durable    bool
 	AutoDelete bool
 	Internal   bool
 	NoWait     bool
 	Args       map[string]interface{}
-	Pub        ConfigPub
+	Pub        TweakPub
 	QueueBind  struct {
 		NoWait     bool
 		Args       map[string]interface{}
@@ -38,13 +38,13 @@ var (
 	//	defaults quite sensible during prototyping, until you *know* what few
 	//	things you need to tweak and why.
 	//	Used by `Context.Exchange()` if it is passed `nil` for its `cfg` arg.
-	ConfigDefaultsExchange = &ConfigExchange{Durable: true, Type: "fanout"}
+	ConfigDefaultsExchange = &ExchangeConfig{Durable: true, Type: "fanout"}
 )
 
 //	Declares an exchange with the specified `name` for publishing to multiple
 //	subscribers to the specified `Queue`. If `cfg` is `nil`, the
 //	current `ConfigDefaultsExchange` is used.
-func (ctx *Context) Exchange(name string, cfg *ConfigExchange, bindTo *Queue) (ex *Exchange, err error) {
+func (ctx *Context) Exchange(name string, cfg *ExchangeConfig, bindTo *Queue) (ex *Exchange, err error) {
 	if cfg == nil {
 		cfg = ConfigDefaultsExchange
 	}

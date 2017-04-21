@@ -31,14 +31,14 @@ type Context struct {
 var LocalCtx = &Context{UserName: "guest", Password: "guest", Host: "localhost", Port: 5672}
 
 //	Specialist tweaks for `Publish`ing via a `Queue` or an `Exchange`.
-type ConfigPub struct {
+type TweakPub struct {
 	Mandatory  bool
 	Immediate  bool
 	Persistent bool
 }
 
 //	Specialist tweaks used from within `Queue.SubscribeTo`.
-type ConfigSub struct {
+type TweakSub struct {
 	Consumer string
 	AutoAck  bool
 	NoLocal  bool
@@ -84,7 +84,7 @@ func (ctx *Context) ensureConnectionAndChannel() (err error) {
 	return
 }
 
-func (ctx *Context) publish(obj interface{}, exchangeName string, routingKey string, cfgPub *ConfigPub) (err error) {
+func (ctx *Context) publish(obj interface{}, exchangeName string, routingKey string, cfgPub *TweakPub) (err error) {
 	var msgraw []byte
 	if err = ctx.ensureConnectionAndChannel(); err == nil {
 		if msgraw, err = json.Marshal(obj); err == nil {

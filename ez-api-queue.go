@@ -16,20 +16,20 @@ type Queue struct {
 	Name string
 
 	//	Set to sensible defaults of `ConfigDefaultsQueue` at initialization.
-	Config *ConfigQueue
+	Config *QueueConfig
 
 	ctx *Context
 }
 
 //	Specialist tweaks for declaring a `Queue` to the backing message-queue.
-type ConfigQueue struct {
+type QueueConfig struct {
 	Durable                    bool
 	AutoDelete                 bool
 	Exclusive                  bool
 	NoWait                     bool
 	Args                       map[string]interface{}
-	Pub                        ConfigPub
-	Sub                        ConfigSub
+	Pub                        TweakPub
+	Sub                        TweakSub
 	QosMultipleWorkerInstances bool
 }
 
@@ -38,13 +38,13 @@ var (
 	//	defaults quite sensible during prototyping, until you *know* what few
 	//	things you need to tweak and why.
 	//	Used by `Context.Queue()` if it is passed `nil` for its `cfg` arg.
-	ConfigDefaultsQueue = &ConfigQueue{Durable: true, Sub: ConfigSub{AutoAck: true}}
+	ConfigDefaultsQueue = &QueueConfig{Durable: true, Sub: TweakSub{AutoAck: true}}
 )
 
 //	Declares a queue with the specified `name` for publishing and subscribing.
 //	If `cfg` is `nil`, the current `ConfigDefaultsQueue` is used. For `name`,
 //	DO refer to the docs on `Queue.Name`.
-func (ctx *Context) Queue(name string, cfg *ConfigQueue) (q *Queue, err error) {
+func (ctx *Context) Queue(name string, cfg *QueueConfig) (q *Queue, err error) {
 	if cfg == nil {
 		cfg = ConfigDefaultsQueue // nil implies zeroed-defaults, seems acceptable to amqp
 	}
