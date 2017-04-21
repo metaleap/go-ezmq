@@ -7,9 +7,7 @@ import (
 //	Just a minimal demo "line-of-business object" type that ezmq can pub/sub.
 //	This type as well as BizFoo showcase just how easily one would extend one's
 //	in-house / company-specific ezMQ wrapper library by additional custom
-//	message types as desired. In fact, both are ripe candidates for codegen-ing
-//	the well-typed wrapper methods associated with one's line-of-business struct:
-//	`Exchange.PublishXyz`, `Queue.PublishXyz`, and `Queue.SubscribeToXyzs`.
+//	message types as desired.
 type BizEvent struct {
 	Id   string
 	Name string
