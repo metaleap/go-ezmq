@@ -56,7 +56,7 @@ func (ctx *Context) Close() (chanCloseErr, connCloseErr error) {
 	return
 }
 
-func (ctx *Context) connectionUri() (uri string) {
+func (ctx *Context) connectionURI() (uri string) {
 	//	there are more efficient ways to concat strings but this won't be called frequently/repeatedly, so we go for readability
 	uri = "amqp://"
 	if len(ctx.UserName) > 0 {
@@ -75,7 +75,7 @@ func (ctx *Context) connectionUri() (uri string) {
 
 func (ctx *Context) ensureConnectionAndChannel() (err error) {
 	if ctx.conn == nil {
-		ctx.conn, err = amqp.Dial(ctx.connectionUri())
+		ctx.conn, err = amqp.Dial(ctx.connectionURI())
 	}
 	if ctx.conn != nil && ctx.ch == nil {
 		ctx.ch, err = ctx.conn.Channel()

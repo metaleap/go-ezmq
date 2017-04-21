@@ -11,10 +11,10 @@ Pseudo-code ignores all the `error`s returned that it should in real life check:
 
 ### Simple publishing via Queue:
 
-    ctx := ezmq.LocalCtx
+    ctx := ezmq.LocalCtx // guest:guest@localhost:5672
     defer ctx.Close()
     var qcfg *ezmq.QueueConfig = nil // that's OK
-     
+
     qe := ctx.Queue('myevents', qcfg)
     qe.PublishBizEvent(ezmq.NewBizEvent("evt1", "DisEvent"))
     qf := ctx.Queue('myfoos', qcfg)
@@ -25,9 +25,10 @@ Pseudo-code ignores all the `error`s returned that it should in real life check:
 
 ### Simple subscribing via Queue:
 
-    qe.SubscribeToBizEvents(func(evt *ezmq.BizEvent) {
+    onBizEvent := func(evt *ezmq.BizEvent) {
         println(evt.Name)
-    })
+    }
+    qe.SubscribeToBizEvents(onBizEvent)
     qf.SubscribeToBizFoos(func(foo *ezmq.Foo) { mylogger.LogAnything(foo) })
     for true { /* we loop until we won't */ }
 
@@ -227,11 +228,11 @@ Convenience short-hand for `ex.Publish(foo)`
 ```go
 type ExchangeConfig struct {
 	Type       string // fanout/direct/topic/headers
+	Args       map[string]interface{}
 	Durable    bool
 	AutoDelete bool
 	Internal   bool
 	NoWait     bool
-	Args       map[string]interface{}
 	Pub        TweakPub
 	QueueBind  struct {
 		NoWait     bool
@@ -322,10 +323,10 @@ type QueueConfig struct {
 	AutoDelete                 bool
 	Exclusive                  bool
 	NoWait                     bool
-	Args                       map[string]interface{}
+	QosMultipleWorkerInstances bool
 	Pub                        TweakPub
 	Sub                        TweakSub
-	QosMultipleWorkerInstances bool
+	Args                       map[string]interface{}
 }
 ```
 

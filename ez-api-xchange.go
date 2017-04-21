@@ -20,11 +20,11 @@ type Exchange struct {
 //	Specialist tweaks for declaring an `Exchange` to the backing message-queue.
 type ExchangeConfig struct {
 	Type       string // fanout/direct/topic/headers
+	Args       map[string]interface{}
 	Durable    bool
 	AutoDelete bool
 	Internal   bool
 	NoWait     bool
-	Args       map[string]interface{}
 	Pub        TweakPub
 	QueueBind  struct {
 		NoWait     bool

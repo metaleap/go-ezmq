@@ -29,10 +29,10 @@ type QueueConfig struct {
 	AutoDelete                 bool
 	Exclusive                  bool
 	NoWait                     bool
-	Args                       map[string]interface{}
+	QosMultipleWorkerInstances bool
 	Pub                        TweakPub
 	Sub                        TweakSub
-	QosMultipleWorkerInstances bool
+	Args                       map[string]interface{}
 }
 
 var (
