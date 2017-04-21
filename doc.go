@@ -3,13 +3,13 @@
 //	## High-level API workflow:
 //
 //	* make a `Context` (later, when done, `Close` it)
-//	* for simple messaging, use it to declare a named `Queue`, then
+//	* for **simple messaging**, use it to declare a named `Queue`, then
 //	    * `Queue.Publish(anything)`
 //	    * `Queue.SubscribeTo<Thing>s(myOnThingHandlers...)`
-//	* to publish to multiple subscribers
+//	* to publish to **multiple subscribers**
 //	    * use the `Context` and an unnamed `Queue` to declare an `Exchange`,
 //	    * then `Exchange.Publish(anything)`
-//	* for multiple worker instances, set 2 `bool`s, as below
+//	* for multiple **worker instances**, set 2 `bool`s, as below
 //
 //	## Example scenarios
 //
