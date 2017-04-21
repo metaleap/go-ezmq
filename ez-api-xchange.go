@@ -26,7 +26,10 @@ type ConfigExchangeQueueBind struct {
 }
 
 var (
-	ConfigDefaultsExchange          = &ConfigExchange{Durable: true, Type: "fanout"}
+	//	Mustn't be `nil`. Sensible defaults during prototyping, until you *know* what you need to tweak and why.
+	//	Used by `Context.Exchange()` if it is passed `nil` for its `cfg` arg.
+	ConfigDefaultsExchange = &ConfigExchange{Durable: true, Type: "fanout"}
+
 	ConfigDefaultsExchangeQueueBind = &ConfigExchangeQueueBind{}
 )
 
@@ -46,6 +49,6 @@ func (ctx *Context) Exchange(name string, cfg *ConfigExchange, bindTo *Queue) (e
 	return
 }
 
-func (ex *Exchange) publish(obj interface{}) error {
+func (ex *Exchange) Publish(obj interface{}) error {
 	return ex.ctx.publish(obj, ex.Name, ex.Config.QueueBind.RoutingKey, ex.Config.Pub)
 }

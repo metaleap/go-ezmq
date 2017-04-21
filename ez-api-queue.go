@@ -59,7 +59,7 @@ func (ctx *Context) Queue(name string, cfg *ConfigQueue) (q *Queue, err error) {
 	return
 }
 
-func (q *Queue) publish(obj interface{}) error {
+func (q *Queue) Publish(obj interface{}) error {
 	return q.ctx.publish(obj, "", q.Name, q.Config.Pub)
 }
 

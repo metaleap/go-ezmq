@@ -19,11 +19,11 @@ func NewEventAt(id string, name string, date time.Time) *Event {
 }
 
 func (ex *Exchange) PublishEvent(evt *Event) error {
-	return ex.publish(evt)
+	return ex.Publish(evt)
 }
 
 func (q *Queue) PublishEvent(evt *Event) error {
-	return q.publish(evt)
+	return q.Publish(evt)
 }
 
 func (q *Queue) SubscribeToEvents(subscribers ...func(*Event)) (err error) {
