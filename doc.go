@@ -9,7 +9,7 @@
 //	Pseudo-code ignores all the `error`s returned that it should in real life check:
 //
 //	### Simple publishing via Queue:
-//
+//	    ```go
 //	    ctx := ezmq.LocalCtx                                        // guest:guest@localhost:5672
 //	    defer ctx.Close()
 //	    var qcfg *ezmq.QueueConfig = nil                            // that's OK
@@ -18,10 +18,11 @@
 //	    qe.PublishBizEvent(ezmq.NewBizEvent("evt1", "DisEvent"))
 //	    qf := ctx.Queue('myfoos', qcfg)
 //	    qf.PublishBizFoo(&ezmq.BizFoo{ Bar: true, Baz: 10 })
-//	    //                                                             some more for good measure
+//	    // some more for good measure:
 //	    qe.PublishBizEvent(ezmq.NewBizEvent("evt2", "DatEvent"))
 //	    qf.Publish(&ezmq.BizFoo{ Baz: 20 })                         // same thing just untyped
 //	    qe.Publish(ezmq.NewBizEvent("evt3", "SomeEvent"))           // ditto
+//	    ```
 //
 //	### Simple subscribing via Queue:
 //
