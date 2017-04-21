@@ -1,6 +1,15 @@
 //	Provides a higher-level, type-driven message-queuing API wrapping RabbitMQ / amqp.
 //
-//	## Scenarios
+//	## High-level API workflow:
+//
+//	* make a `Context`
+//	* use it to declare a named `Queue`
+//	* `Queue.Publish(anything)`
+//	* `Queue.SubscribeTo<Thing>s`
+//	* to publish to multiple subscribers, use the `Context` and an unnamed `Queue` to declare an `Exchange`, then `Exchange.Publish(anything)`
+//	* for multiple worker instances, set 2 `bool`s, as below
+//
+//	## Example scenarios
 //
 //	"Line-of-business object" types used here, `BizEvent` and `BizFoo`, are included for
 //	*demo* purposes, to showcase how easily one may "type-safe-ish"ly broadcast and subscribe-to
@@ -35,7 +44,7 @@
 //	### Multiple subscribers via Exchange:
 //
 //	    qm := ctx.Queue('', qcfg)   //  name MUST be empty
-//	    var xcfg *ezmq.ExchangeConfig = nil // as usual, nil = defaults
+//	    var xcfg *ezmq.ExchangeConfig = nil // as above, nil = defaults
 //	    ex := ctx.Exchange('mybroadcast', xcfg, qm)  //  only pass `Queue`s that were declared with empty `name`
 //	    ex.Publish(ezmq.NewBizEvent("evt1", "DisEvent"))  //  publish via `Exchange`, not via `Queue`, same API
 //	    ex.Publish(&ezmq.BizFoo{ Bar: true, Baz: 10 })
