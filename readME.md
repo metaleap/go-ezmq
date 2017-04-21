@@ -7,6 +7,11 @@ amqp.
 
 ## Scenarios
 
+"Line-of-business object" types used here, `BizEvent` and `BizFoo`, are included
+for *demo* purposes, to showcase how easily one may "type-safe-ish"ly broadcast
+and subscribe-to any kind of custom, in-house struct type; ezmq employs JSON
+serialization only for now.
+
 Pseudo-code ignores all the `error`s returned that it should in real life check:
 
 ### Simple publishing via Queue:
