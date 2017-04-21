@@ -59,12 +59,12 @@ Pseudo-code ignores all the `error`s returned that it should in real life check:
 ### Enabling multiple worker instances:
 
 ```go
-    // Prior to ctx.Queue()
+    // Pass this then to ctx.Queue()
     var qcfg *ezmq.QueueConfig = ezmq.ConfigDefaultsQueue
     qcfg.Pub.Persistent = true
     qcfg.Pub.QosMultipleWorkerInstances = true
 
-    // Prior to ctx.Exchange(), if one is used
+    // Pass this then to ctx.Exchange(), if one is used
     var xcfg *ezmq.ExchangeConfig = ezmq.ConfigDefaultsExchange
     xcfg.Pub.Persistent = true
     xcfg.Pub.QosMultipleWorkerInstances = true
