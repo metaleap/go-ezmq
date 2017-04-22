@@ -2,9 +2,9 @@
 
 ```go
     import "github.com/metaleap/go-ezmq"
-```
 
-A higher-level, type-driven, simplified message-queuing API wrapping+hiding+streamlining RabbitMQ & streadway/amqp under the hood
+A higher-level, type-driven, simplified message-queuing API
+wrapping+hiding+streamlining RabbitMQ & streadway/amqp under the hood
 
 ## High-Level API Workflow:
 
@@ -107,13 +107,6 @@ var (
 )
 ```
 
-```go
-var (
-	//	A convenient `Context` for local-machine based prototyping/testing.
-	LocalCtx = Context{UserName: "guest", Password: "guest", Host: "localhost", Port: 5672}
-)
-```
-
 #### type BizEvent
 
 ```go
@@ -173,6 +166,14 @@ publish and subscribe, as those calls will connect if the `Context` isn't
 already connected. Subsequent field mutations are of course ignored as the
 connection is kept alive. For clean-up or manual / pooled connection strategies,
 `Context` provides the `Close` method.
+
+#### func  NewLocalContext
+
+```go
+func NewLocalContext() Context
+```
+A convenient `Context` for local-machine based prototyping/testing:
+guest:guest@localhost:5672
 
 #### func (*Context) Close
 
