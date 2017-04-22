@@ -250,7 +250,7 @@ type ExchangeConfig struct {
 
 Specialist tweaks for declaring an `Exchange` to the backing message-queue. If
 you don't know their meaning, you're best off keeping our defaults until
-admins/dev-ops decide otherwise.
+admins/dev-ops/unexpected-results suggest otherwise.
 
 #### type Queue
 
@@ -326,7 +326,7 @@ type QueueConfig struct {
 
 Specialist tweaks for declaring a `Queue` to the backing message-queue. If you
 don't know their meaning, you're best off keeping our defaults until
-admins/dev-ops decide otherwise.
+admins/dev-ops/unexpected-results suggest otherwise.
 
 #### type TweakPub
 
@@ -339,8 +339,8 @@ type TweakPub struct {
 ```
 
 Specialist tweaks for `Publish`ing via a `Queue` or an `Exchange`. If you don't
-know their meaning, you're best off keeping our defaults until admins/dev-ops
-decide otherwise.
+know their meaning, you're best off keeping our defaults until
+admins/dev-ops/unexpected-results suggest otherwise.
 
 #### type TweakSub
 
@@ -360,5 +360,5 @@ type TweakSub struct {
 ```
 
 Specialist tweaks used from within `Queue.SubscribeTo`. If you don't know their
-meaning, you're best off keeping our defaults until admins/dev-ops decide
-otherwise.
+meaning, you're best off keeping our defaults until
+admins/dev-ops/unexpected-results suggest otherwise.
