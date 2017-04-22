@@ -4,7 +4,7 @@
     import "github.com/metaleap/go-ezmq"
 ```
 
-A higher-level, type-driven message-queuing API wrapping-hiding-streamlining RabbitMQ / amqp under the hood (while retaining most flexibility & powers)
+A higher-level, type-driven, simplified message-queuing API wrapping+hiding+streamlining RabbitMQ & streadway/amqp under the hood (while retaining much of their flexibility & powers)
 
 ## High-Level API Workflow:
 
