@@ -1,4 +1,4 @@
-//	A higher-level, type-driven, simplified message-queuing API wrapping+hiding+streamlining RabbitMQ & streadway/amqp under the hood (while retaining much of their flexibility & powers)
+//	A higher-level, type-driven, simplified message-queuing API wrapping+hiding+streamlining RabbitMQ & streadway/amqp under the hood
 //
 //	## High-Level API Workflow:
 //

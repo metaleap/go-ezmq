@@ -4,12 +4,12 @@
     import "github.com/metaleap/go-ezmq"
 ```
 
-A higher-level, type-driven, simplified message-queuing API wrapping+hiding+streamlining RabbitMQ & streadway/amqp under the hood (while retaining much of their flexibility & powers)
+A higher-level, type-driven, simplified message-queuing API wrapping+hiding+streamlining RabbitMQ & streadway/amqp under the hood
 
 ## High-Level API Workflow:
 
-* make a `Context` (later, when done, `Close` it) * for **simple messaging**,
-use it to declare a named `Queue`, then
+* make a `Context` (later, when done, `Close` it)
+* for **simple messaging**, use it to declare a named `Queue`, then
 
     * `Queue.Publish(anything)`
     * `Queue.SubscribeTo<Thing>s(myOnThingHandlers...)`
