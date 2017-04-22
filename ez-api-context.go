@@ -2,6 +2,7 @@ package ezmq
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/streadway/amqp"
@@ -66,26 +67,33 @@ func (ctx *Context) Close() (chanCloseErr, connCloseErr error) {
 	return
 }
 
-func (ctx *Context) connectionURI() (uri string) {
-	//	there are more efficient ways to concat strings but this won't be called frequently/repeatedly, so we go for readability
-	uri = "amqp://"
-	if len(ctx.UserName) > 0 {
-		uri += ctx.UserName
-		if len(ctx.Password) > 0 {
-			uri += ":" + ctx.Password
+func (ctx *Context) connectionURI() (uri string, err error) {
+	if len(ctx.Host) == 0 {
+		err = errors.New("To attempt a connection, this `Context` needs at least its `Host` set.")
+	} else {
+		//	there are more efficient ways to concat strings but this won't be called frequently/repeatedly, so we go for readability
+		uri = "amqp://"
+		if len(ctx.UserName) > 0 {
+			uri += ctx.UserName
+			if len(ctx.Password) > 0 {
+				uri += ":" + ctx.Password
+			}
+			uri += "@"
 		}
-		uri += "@"
-	}
-	uri += ctx.Host
-	if ctx.Port > 0 {
-		uri += fmt.Sprintf(":%d", ctx.Port)
+		uri += ctx.Host
+		if ctx.Port > 0 {
+			uri += fmt.Sprintf(":%d", ctx.Port)
+		}
 	}
 	return
 }
 
 func (ctx *Context) ensureConnectionAndChannel() (err error) {
 	if ctx.conn == nil {
-		ctx.conn, err = amqp.Dial(ctx.connectionURI())
+		var connuri string
+		if connuri, err = ctx.connectionURI(); err == nil {
+			ctx.conn, err = amqp.Dial(connuri)
+		}
 	}
 	if err == nil && ctx.conn != nil && ctx.ch == nil {
 		ctx.ch, err = ctx.conn.Channel()
