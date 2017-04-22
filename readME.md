@@ -2,6 +2,7 @@
 
 ```go
     import "github.com/metaleap/go-ezmq"
+```
 
 A higher-level, type-driven, simplified message-queuing API
 wrapping+hiding+streamlining RabbitMQ & streadway/amqp under the hood
