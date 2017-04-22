@@ -21,7 +21,7 @@
 //
 //	### Simple publishing via Queue:
 //
-//	    ctx := ezmq.LocalCtx                                        // guest:guest@localhost:5672
+//	    ctx := ezmq.LocalContext()                                  // guest:guest@localhost:5672
 //	    defer ctx.Close()
 //	    var qcfg *ezmq.QueueConfig = nil                            // nil = use 'prudent' defaults
 //

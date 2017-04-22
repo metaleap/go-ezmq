@@ -24,11 +24,6 @@ type Context struct {
 	ch   *amqp.Channel
 }
 
-var (
-	//	A convenient `Context` for local-machine based prototyping/testing.
-	LocalCtx = Context{UserName: "guest", Password: "guest", Host: "localhost", Port: 5672}
-)
-
 //	Specialist tweaks for `Publish`ing via a `Queue` or an `Exchange`.
 //	If you don't know their meaning, you're best off keeping our defaults until admins/dev-ops/unexpected-results suggest otherwise.
 type TweakPub struct {
@@ -50,6 +45,12 @@ type TweakSub struct {
 	//	subscribers), or `false` to discard the value and stop listening on
 	//	behalf of the affected subscribers
 	OnAckError func(error) bool
+}
+
+//	A convenient `Context` for local-machine based prototyping/testing:
+//	guest:guest@localhost:5672
+func LocalContext() Context {
+	return Context{UserName: "guest", Password: "guest", Host: "localhost", Port: 5672}
 }
 
 //	Be SURE to call this when done with ezmq, to cleanly dispose of resources.
