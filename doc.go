@@ -17,7 +17,7 @@
 //	*demo* purposes, to showcase how easily one may "type-safe-ish"ly broadcast and subscribe-to
 //	any kind of custom, in-house struct type.
 //
-//	Pseudo-code ignores all the `error`s returned that it should in real life check:
+//	(Pseudo-code below ignores all the `error`s returned that it should in reality check)
 //
 //	### Simple publishing via Queue:
 //

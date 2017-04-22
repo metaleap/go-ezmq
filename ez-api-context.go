@@ -48,12 +48,12 @@ type TweakSub struct {
 }
 
 //	A convenient `Context` for local-machine based prototyping/testing:
-//	guest:guest@localhost:5672
+//	`guest:guest@localhost:5672`
 func NewLocalContext() Context {
 	return Context{UserName: "guest", Password: "guest", Host: "localhost", Port: 5672}
 }
 
-//	Be SURE to call this when done with ezmq, to cleanly dispose of resources.
+//	Be SURE to call this when done with ezmq, to cleanly dispose of underlying resource primitives.
 func (ctx *Context) Close() (chanCloseErr, connCloseErr error) {
 	if ctx.ch != nil {
 		chanCloseErr = ctx.ch.Close()

@@ -28,7 +28,7 @@ wrapping+hiding+streamlining RabbitMQ & streadway/amqp under the hood
 for *demo* purposes, to showcase how easily one may "type-safe-ish"ly broadcast
 and subscribe-to any kind of custom, in-house struct type.
 
-Pseudo-code ignores all the `error`s returned that it should in real life check:
+(Pseudo-code below ignores all the `error`s returned that it should in reality check)
 
 ### Simple publishing via Queue:
 
@@ -174,14 +174,14 @@ connection is kept alive. For clean-up or manual / pooled connection strategies,
 func NewLocalContext() Context
 ```
 A convenient `Context` for local-machine based prototyping/testing:
-guest:guest@localhost:5672
+`guest:guest@localhost:5672`
 
 #### func (*Context) Close
 
 ```go
 func (ctx *Context) Close() (chanCloseErr, connCloseErr error)
 ```
-Be SURE to call this when done with ezmq, to cleanly dispose of resources.
+Be SURE to call this when done with ezmq, to cleanly dispose of underlying resource primitives.
 
 #### func (*Context) Exchange
 
