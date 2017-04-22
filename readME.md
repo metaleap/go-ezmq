@@ -32,7 +32,7 @@ Pseudo-code ignores all the `error`s returned that it should in real life check:
 ### Simple publishing via Queue:
 
 ```go
-    ctx := ezmq.LocalContext()                                  // guest:guest@localhost:5672
+    ctx := ezmq.NewLocalContext()                               // guest:guest@localhost:5672
     defer ctx.Close()
     var qcfg *ezmq.QueueConfig = nil                            // nil = use 'prudent' defaults
 

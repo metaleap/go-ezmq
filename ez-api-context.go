@@ -49,7 +49,7 @@ type TweakSub struct {
 
 //	A convenient `Context` for local-machine based prototyping/testing:
 //	guest:guest@localhost:5672
-func LocalContext() Context {
+func NewLocalContext() Context {
 	return Context{UserName: "guest", Password: "guest", Host: "localhost", Port: 5672}
 }
 
