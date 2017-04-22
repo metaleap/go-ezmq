@@ -76,12 +76,12 @@ and subscribe-to any kind of custom, in-house struct type.
 ### Enabling multiple worker instances:
 
 ```go
-    // Pass this then to ctx.Queue()
+    // Pub/Sub: pass this to ctx.Queue()
     var qcfg *ezmq.QueueConfig = ezmq.ConfigDefaultsQueue
     qcfg.Pub.Persistent = true
-    qcfg.QosMultipleWorkerInstances = true
+    qcfg.QosMultipleWorkerInstances = true // optionally, also handle `Queue.Config.Sub.OnAckError`
 
-    // Pass this then to ctx.Exchange(), if one is used (WITH a queue declared with the above)
+    // Multi-Subs Pub: pass this to ctx.Exchange() (WITH a `Queue` consistent with the above)
     var xcfg *ezmq.ExchangeConfig = ezmq.ConfigDefaultsExchange
     xcfg.Pub.Persistent = true
 
@@ -352,11 +352,14 @@ type TweakSub struct {
 	AutoAck  bool
 	NoLocal  bool
 
-	//	Keep 'nil` to ignore (or set, to handle) unlikely-but-not-impossible
-	//	manual-(non-auto)-delivery-acknowledgement errors. RETURN: `true` to
-	//	"keep going" (keep listening and also pass the decoded value if any to
-	//	subscribers), or `false` to discard the value and stop listening on
-	//	behalf of the affected subscribers
+	//	Keep 'nil` to ignore ---or set, to handle--- unlikely-but-not-impossible
+	//	manual-(non-auto)-delivery-acknowledgement errors; those can only possibly
+	//	occur when `Queue.Config.Sub.AutoAck` was set to `false` (defaults to
+	//	`true`) *or* when `Queue.Config.QosMultipleWorkerInstances` was set to `true`.
+	//
+	//	RETURN: `true` to "keep going" (keep listening and also pass the decoded
+	//	value if any to subscribers), or `false` to discard the value and stop
+	//	listening on behalf of the affected subscribers
 	OnAckError func(error) bool
 }
 ```

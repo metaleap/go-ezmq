@@ -58,12 +58,12 @@
 //
 //	### Enabling multiple worker instances:
 //
-//	    // Pass this then to ctx.Queue()
+//	    // Pub/Sub: pass this to ctx.Queue()
 //	    var qcfg *ezmq.QueueConfig = ezmq.ConfigDefaultsQueue
 //	    qcfg.Pub.Persistent = true
-//	    qcfg.QosMultipleWorkerInstances = true
+//	    qcfg.QosMultipleWorkerInstances = true // optionally, also handle `Queue.Config.Sub.OnAckError`
 //
-//	    // Pass this then to ctx.Exchange(), if one is used (WITH a queue declared with the above)
+//	    // Multi-Subs Pub: pass this to ctx.Exchange() (WITH a `Queue` consistent with the above)
 //	    var xcfg *ezmq.ExchangeConfig = ezmq.ConfigDefaultsExchange
 //	    xcfg.Pub.Persistent = true
 //

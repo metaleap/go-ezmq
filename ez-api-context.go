@@ -40,11 +40,14 @@ type TweakSub struct {
 	AutoAck  bool
 	NoLocal  bool
 
-	//	Keep 'nil` to ignore (or set, to handle) unlikely-but-not-impossible
-	//	manual-(non-auto)-delivery-acknowledgement errors. RETURN: `true` to
-	//	"keep going" (keep listening and also pass the decoded value if any to
-	//	subscribers), or `false` to discard the value and stop listening on
-	//	behalf of the affected subscribers
+	//	Keep 'nil` to ignore ---or set, to handle--- unlikely-but-not-impossible
+	//	manual-(non-auto)-delivery-acknowledgement errors; those can only possibly
+	//	occur when `Queue.Config.Sub.AutoAck` was set to `false` (defaults to
+	//	`true`) *or* when `Queue.Config.QosMultipleWorkerInstances` was set to `true`.
+	//
+	//	RETURN: `true` to "keep going" (keep listening and also pass the decoded
+	//	value if any to subscribers), or `false` to discard the value and stop
+	//	listening on behalf of the affected subscribers
 	OnAckError func(error) bool
 }
 
