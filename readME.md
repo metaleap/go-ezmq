@@ -4,18 +4,21 @@
     import "github.com/metaleap/go-ezmq"
 ```
 
-Provides a higher-level, type-driven message-queuing API wrapping RabbitMQ /
-amqp.
+A higher-level, type-driven message-queuing API wrapping-hiding-streamlining RabbitMQ / amqp under the hood (while retaining most flexibility & powers)
 
 ## High-Level API Workflow:
 
-* make a `Context` (later, when done, `Close` it)
-* for **simple messaging**, use it to declare a named `Queue`, then:
+* make a `Context` (later, when done, `Close` it) * for **simple messaging**,
+use it to declare a named `Queue`, then
+
     * `Queue.Publish(anything)`
     * `Queue.SubscribeTo<Thing>s(myOnThingHandlers...)`
+
 * to publish to **multiple subscribers**
+
     * use the `Context` and an unnamed `Queue` to declare an `Exchange`,
     * then `Exchange.Publish(anything)`
+
 * for multiple **worker instances**, set 2 `bool`s, as below
 
 ## Example Scenarios
@@ -88,28 +91,26 @@ Pseudo-code ignores all the `error`s returned that it should in real life check:
 
 ```go
 var (
-	//	Can be modified, but mustn't be `nil`. Initially contains prudent
-	//	defaults quite sensible during prototyping, until you *know* what few
-	//	things you need to tweak and why.
+	//	Can be modified. Initially contains prudent defaults quite sensible
+	//	during prototyping, until you *know* what few things you need to tweak and why.
 	//	Used by `Context.Exchange()` if it is passed `nil` for its `cfg` arg.
-	ConfigDefaultsExchange = &ExchangeConfig{Durable: true, Type: "fanout"}
+	ConfigDefaultsExchange = ExchangeConfig{Durable: true, Type: "fanout"}
 )
 ```
 
 ```go
 var (
-	//	Can be modified, but mustn't be `nil`. Initially contains prudent
-	//	defaults quite sensible during prototyping, until you *know* what few
-	//	things you need to tweak and why.
+	//	Can be modified. Initially contains prudent defaults quite sensible
+	//	during prototyping, until you *know* what few things you need to tweak and why.
 	//	Used by `Context.Queue()` if it is passed `nil` for its `cfg` arg.
-	ConfigDefaultsQueue = &QueueConfig{Durable: true, Sub: TweakSub{AutoAck: true}}
+	ConfigDefaultsQueue = QueueConfig{Durable: true, Sub: TweakSub{AutoAck: true}}
 )
 ```
 
 ```go
 var (
 	//	A convenient `Context` for local-machine based prototyping/testing.
-	LocalCtx = &Context{UserName: "guest", Password: "guest", Host: "localhost", Port: 5672}
+	LocalCtx = Context{UserName: "guest", Password: "guest", Host: "localhost", Port: 5672}
 )
 ```
 
@@ -188,8 +189,9 @@ func (ctx *Context) Exchange(name string, cfg *ExchangeConfig, bindTo *Queue) (e
 Declares an "exchange" for publishing to multiple subscribers via the specified
 `Queue` that MUST have been created with an empty `name`. (NB. if
 multiple-subscribers need not be supported, then no need for an `Exchange`: just
-use a simple `Queue` only.) If `cfg` is `nil`, the current
-`ConfigDefaultsExchange` is used. For `name`, see `Exchange.Name`.
+use a simple `Queue` only.) If `cfg` is `nil`, a copy of the current
+`ConfigDefaultsExchange` is used for `ex.Config`, else a copy of `cfg`. For
+`name`, see `Exchange.Name`.
 
 #### func (*Context) Queue
 
@@ -197,8 +199,8 @@ use a simple `Queue` only.) If `cfg` is `nil`, the current
 func (ctx *Context) Queue(name string, cfg *QueueConfig) (q *Queue, err error)
 ```
 Declares a queue with the specified `name` for publishing and subscribing. If
-`cfg` is `nil`, the current `ConfigDefaultsQueue` is used. For `name`, DO refer
-to the docs on `Queue.Name`.
+`cfg` is `nil`, a copy of the current `ConfigDefaultsQueue` is used for
+`q.Config`, else a copy of `cfg`. For `name`, DO refer to `Queue.Name`.
 
 #### type Exchange
 
@@ -211,7 +213,7 @@ type Exchange struct {
 	Name string
 
 	//	Set to sensible defaults of `ConfigDefaultsExchange` at initialization.
-	Config *ExchangeConfig
+	Config ExchangeConfig
 }
 ```
 
@@ -247,7 +249,8 @@ type ExchangeConfig struct {
 ```
 
 Specialist tweaks for declaring an `Exchange` to the backing message-queue. If
-you don't know their meaning, you're better off taking our defaults.
+you don't know their meaning, you're best off keeping our defaults until
+admins/dev-ops decide otherwise.
 
 #### type Queue
 
@@ -261,7 +264,7 @@ type Queue struct {
 	Name string
 
 	//	Set to sensible defaults of `ConfigDefaultsQueue` at initialization.
-	Config *QueueConfig
+	Config QueueConfig
 }
 ```
 
@@ -322,7 +325,8 @@ type QueueConfig struct {
 ```
 
 Specialist tweaks for declaring a `Queue` to the backing message-queue. If you
-don't know their meaning, you're better off taking our defaults.
+don't know their meaning, you're best off keeping our defaults until
+admins/dev-ops decide otherwise.
 
 #### type TweakPub
 
@@ -335,7 +339,8 @@ type TweakPub struct {
 ```
 
 Specialist tweaks for `Publish`ing via a `Queue` or an `Exchange`. If you don't
-know their meaning, you're better off taking our defaults.
+know their meaning, you're best off keeping our defaults until admins/dev-ops
+decide otherwise.
 
 #### type TweakSub
 
@@ -355,4 +360,5 @@ type TweakSub struct {
 ```
 
 Specialist tweaks used from within `Queue.SubscribeTo`. If you don't know their
-meaning, you're better off taking our defaults.
+meaning, you're best off keeping our defaults until admins/dev-ops decide
+otherwise.

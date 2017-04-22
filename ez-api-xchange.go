@@ -12,13 +12,13 @@ type Exchange struct {
 	Name string
 
 	//	Set to sensible defaults of `ConfigDefaultsExchange` at initialization.
-	Config *ExchangeConfig
+	Config ExchangeConfig
 
 	ctx *Context
 }
 
 //	Specialist tweaks for declaring an `Exchange` to the backing message-queue.
-//	If you don't know their meaning, you're better off taking our defaults.
+//	If you don't know their meaning, you're best off keeping our defaults until admins/dev-ops decide otherwise.
 type ExchangeConfig struct {
 	Type       string // fanout/direct/topic/headers
 	Args       map[string]interface{}
@@ -35,24 +35,23 @@ type ExchangeConfig struct {
 }
 
 var (
-	//	Can be modified, but mustn't be `nil`. Initially contains prudent
-	//	defaults quite sensible during prototyping, until you *know* what few
-	//	things you need to tweak and why.
+	//	Can be modified. Initially contains prudent defaults quite sensible
+	//	during prototyping, until you *know* what few things you need to tweak and why.
 	//	Used by `Context.Exchange()` if it is passed `nil` for its `cfg` arg.
-	ConfigDefaultsExchange = &ExchangeConfig{Durable: true, Type: "fanout"}
+	ConfigDefaultsExchange = ExchangeConfig{Durable: true, Type: "fanout"}
 )
 
 //	Declares an "exchange" for publishing to multiple subscribers via the
 //	specified `Queue` that MUST have been created with an empty `name`.
 //	(NB. if multiple-subscribers need not be supported, then no need for an
 //	`Exchange`: just use a simple `Queue` only.)
-//	If `cfg` is `nil`, the current `ConfigDefaultsExchange` is used.
-//	For `name`, see `Exchange.Name`.
+//	If `cfg` is `nil`, a copy of the current `ConfigDefaultsExchange` is used
+//	for `ex.Config`, else a copy of `cfg`. For `name`, see `Exchange.Name`.
 func (ctx *Context) Exchange(name string, cfg *ExchangeConfig, bindTo *Queue) (ex *Exchange, err error) {
 	if cfg == nil {
-		cfg = ConfigDefaultsExchange
+		cfg = &ConfigDefaultsExchange
 	}
-	ex = &Exchange{ctx: ctx, Name: name, Config: cfg}
+	ex = &Exchange{ctx: ctx, Name: name, Config: *cfg}
 	if err = ctx.ensureConnectionAndChannel(); err == nil {
 		if err = ctx.ch.ExchangeDeclare(name, cfg.Type, cfg.Durable, cfg.AutoDelete, cfg.Internal, cfg.NoWait, cfg.Args); err == nil {
 			err = ctx.ch.QueueBind(bindTo.Name, cfg.QueueBind.RoutingKey, name, cfg.QueueBind.NoWait, cfg.QueueBind.Args)

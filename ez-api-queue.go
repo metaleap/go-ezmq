@@ -18,13 +18,13 @@ type Queue struct {
 	Name string
 
 	//	Set to sensible defaults of `ConfigDefaultsQueue` at initialization.
-	Config *QueueConfig
+	Config QueueConfig
 
 	ctx *Context
 }
 
 //	Specialist tweaks for declaring a `Queue` to the backing message-queue.
-//	If you don't know their meaning, you're better off taking our defaults.
+//	If you don't know their meaning, you're best off keeping our defaults until admins/dev-ops decide otherwise.
 type QueueConfig struct {
 	Durable                    bool
 	AutoDelete                 bool
@@ -37,34 +37,28 @@ type QueueConfig struct {
 }
 
 var (
-	//	Can be modified, but mustn't be `nil`. Initially contains prudent
-	//	defaults quite sensible during prototyping, until you *know* what few
-	//	things you need to tweak and why.
+	//	Can be modified. Initially contains prudent defaults quite sensible
+	//	during prototyping, until you *know* what few things you need to tweak and why.
 	//	Used by `Context.Queue()` if it is passed `nil` for its `cfg` arg.
-	ConfigDefaultsQueue = &QueueConfig{Durable: true, Sub: TweakSub{AutoAck: true}}
+	ConfigDefaultsQueue = QueueConfig{Durable: true, Sub: TweakSub{AutoAck: true}}
 )
 
 //	Declares a queue with the specified `name` for publishing and subscribing.
-//	If `cfg` is `nil`, the current `ConfigDefaultsQueue` is used. For `name`,
-//	DO refer to the docs on `Queue.Name`.
+//	If `cfg` is `nil`, a copy of the current `ConfigDefaultsQueue` is used
+//	for `q.Config`, else a copy of `cfg`. For `name`, DO refer to `Queue.Name`.
 func (ctx *Context) Queue(name string, cfg *QueueConfig) (q *Queue, err error) {
-	if cfg == nil {
-		cfg = ConfigDefaultsQueue
+	q = &Queue{ctx: ctx, Config: ConfigDefaultsQueue}
+	if cfg != nil {
+		q.Config = *cfg
 	}
-	q = &Queue{ctx: ctx, Config: cfg}
+	if isforbindingtoexchange := len(name) == 0; isforbindingtoexchange {
+		q.Config.Durable, q.Config.Exclusive = false, true
+	}
 	if err = ctx.ensureConnectionAndChannel(); err == nil {
-		exclusive, durable := cfg.Exclusive, cfg.Durable
-		if isforbindingtoexchange := len(name) == 0; isforbindingtoexchange {
-			if durable, exclusive = false, true; exclusive != cfg.Exclusive || durable != cfg.Durable {
-				nucfg := *cfg
-				nucfg.Exclusive, nucfg.Durable = exclusive, durable
-				q.Config, cfg = &nucfg, &nucfg
-			}
-		}
-		var _q amqp.Queue
-		if _q, err = ctx.ch.QueueDeclare(name, durable, cfg.AutoDelete, exclusive, cfg.NoWait, cfg.Args); err == nil {
-			q.Name = _q.Name // if `name` was empty, this will be a random-name
-			if cfg.QosMultipleWorkerInstances {
+		var queueserverstate amqp.Queue
+		if queueserverstate, err = ctx.ch.QueueDeclare(name, q.Config.Durable, q.Config.AutoDelete, q.Config.Exclusive, q.Config.NoWait, q.Config.Args); err == nil {
+			q.Name = queueserverstate.Name // if `name` was empty, this will be a random-name
+			if q.Config.QosMultipleWorkerInstances {
 				err = ctx.ch.Qos(1, 0, false)
 			}
 		}
@@ -91,39 +85,39 @@ func (q *Queue) Publish(obj interface{}) error {
 //	passed a non-nil pointer to the value (now populated with data) returned by
 //	`makeEmptyObjForDeserialization`, therefore safe to cast back to the Type.
 func (q *Queue) SubscribeTo(makeEmptyObjForDeserialization func() interface{}, onMsg func(interface{})) (err error) {
-	if err = q.ctx.ensureConnectionAndChannel(); err == nil {
-		cfgSub := q.Config.Sub
-		var msgchan <-chan amqp.Delivery
-		autoAck := cfgSub.AutoAck && !q.Config.QosMultipleWorkerInstances
-		msgchan, err = q.ctx.ch.Consume(q.Name, cfgSub.Consumer, autoAck, q.Config.Exclusive, cfgSub.NoLocal, q.Config.NoWait, q.Config.Args)
-		if err == nil && msgchan != nil {
-			keepListening := func() {
-				for msgdelivery := range msgchan {
-					ptr, ackErr := decodeMsgForSubscribers(&msgdelivery, !autoAck, q.Config.Exclusive, makeEmptyObjForDeserialization)
-					if ackErr != nil && cfgSub.OnAckError != nil { // we're looping in a goroutine so this one, the client can handle or ignore as preferred
-						if keepgoing := cfgSub.OnAckError(ackErr); !keepgoing {
-							return
-						}
-					}
-					if ptr != nil {
-						onMsg(ptr)
-					}
+	if err = q.ctx.ensureConnectionAndChannel(); err != nil {
+		return
+	}
+	cfgsub := q.Config.Sub
+	autoack := cfgsub.AutoAck && !q.Config.QosMultipleWorkerInstances
+	var msgchan <-chan amqp.Delivery
+	if msgchan, err = q.ctx.ch.Consume(q.Name, cfgsub.Consumer, autoack, q.Config.Exclusive, cfgsub.NoLocal, q.Config.NoWait, q.Config.Args); err != nil || msgchan == nil {
+		return
+	}
+	keepListeningInABackgroundLoopGoroutine := func() {
+		for msgdelivery := range msgchan {
+			ptr, ackerr := decodeMsgForSubscribers(&msgdelivery, !autoack, makeEmptyObjForDeserialization)
+			if ackerr != nil && cfgsub.OnAckError != nil { // we're looping in a goroutine so this one, the client can handle or ignore as preferred
+				if keepgoing := cfgsub.OnAckError(ackerr); !keepgoing {
+					return
 				}
 			}
-			go keepListening()
+			if ptr != nil {
+				onMsg(ptr)
+			}
 		}
 	}
+	go keepListeningInABackgroundLoopGoroutine()
 	return
 }
 
-func decodeMsgForSubscribers(msgDelivery *amqp.Delivery, shouldAck bool, exclusive bool, constructor func() interface{}) (ptr interface{}, ackErr error) {
+func decodeMsgForSubscribers(msgDelivery *amqp.Delivery, shouldAck bool, constructor func() interface{}) (ptr interface{}, ackErr error) {
 	newvalue := constructor()
 	if jsonerr := json.Unmarshal(msgDelivery.Body, &newvalue); jsonerr == nil {
 		ptr = &newvalue
 	} // else some sort of msg passed by not fitting into newvalue and thus of no interest to *these* here subscribers
-	if mayack := ptr != nil || exclusive; mayack && shouldAck {
-		// TODO: not 100% clear yet if proper ack semantics applied here, erring on the side of caution
-		ackErr = msgDelivery.Ack(false) // ack only if either success or no other susbcriber-listeners will ever ack it (and only if we should in the first place)
+	if shouldAck { // TODO: for production, gonna have to refine to full ack semantics (ack/reject/nack) with respect to exclusive
+		ackErr = msgDelivery.Ack(false)
 	}
 	return
 }

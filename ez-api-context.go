@@ -26,11 +26,11 @@ type Context struct {
 
 var (
 	//	A convenient `Context` for local-machine based prototyping/testing.
-	LocalCtx = &Context{UserName: "guest", Password: "guest", Host: "localhost", Port: 5672}
+	LocalCtx = Context{UserName: "guest", Password: "guest", Host: "localhost", Port: 5672}
 )
 
 //	Specialist tweaks for `Publish`ing via a `Queue` or an `Exchange`.
-//	If you don't know their meaning, you're better off taking our defaults.
+//	If you don't know their meaning, you're best off keeping our defaults until admins/dev-ops decide otherwise.
 type TweakPub struct {
 	Mandatory  bool
 	Immediate  bool
@@ -38,7 +38,7 @@ type TweakPub struct {
 }
 
 //	Specialist tweaks used from within `Queue.SubscribeTo`.
-//	If you don't know their meaning, you're better off taking our defaults.
+//	If you don't know their meaning, you're best off keeping our defaults until admins/dev-ops decide otherwise.
 type TweakSub struct {
 	Consumer string
 	AutoAck  bool

@@ -1,4 +1,5 @@
-//	Provides a higher-level, type-driven message-queuing API wrapping RabbitMQ / amqp.
+//	A higher-level, type-driven message-queuing API wrapping-hiding-streamlining
+//	RabbitMQ / amqp under the hood (while retaining most flexibility & powers)
 //
 //	## High-Level API Workflow:
 //
