@@ -32,11 +32,13 @@ Pseudo-code ignores all the `error`s returned that it should in real life check:
     ctx := ezmq.LocalCtx                                        // guest:guest@localhost:5672
     defer ctx.Close()
     var qcfg *ezmq.QueueConfig = nil                            // nil = use 'prudent' defaults
-    //
+
     qe,_ := ctx.Queue('myevents', qcfg)
     qe.Publish(ezmq.NewBizEvent("evt1", "DisEvent"))
+
     qf,_ := ctx.Queue('myfoos', qcfg)
     qf.Publish(&ezmq.BizFoo{ Bar: true, Baz: 10 })
+
     // some more for good measure:
     qe.Publish(ezmq.NewBizEvent("evt2", "DatEvent"))
     qf.Publish(&ezmq.BizFoo{ Baz: 20 })
@@ -60,6 +62,7 @@ Pseudo-code ignores all the `error`s returned that it should in real life check:
     qm,_ := ctx.Queue('', qcfg)   //  name MUST be empty
     var xcfg *ezmq.ExchangeConfig = nil // as above, nil = defaults
     ex,_ := ctx.Exchange('mybroadcast', xcfg, qm)  //  only pass `Queue`s that were declared with empty `name`
+
     ex.Publish(ezmq.NewBizEvent("evt1", "DisEvent"))  //  publish via `Exchange`, not via `Queue`, same API
     ex.Publish(&ezmq.BizFoo{ Bar: true, Baz: 10 })
     ex.Publish(ezmq.NewBizEvent("evt2", "DatEvent"))

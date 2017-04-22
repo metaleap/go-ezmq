@@ -11,13 +11,11 @@ type BizFoo struct {
 
 //	A well-typed (to `BizFoo`) wrapper around `Queue.SubscribeTo`.
 func (q *Queue) SubscribeToBizFoos(subscribers ...func(*BizFoo)) (err error) {
-	makeEmptyBizFooForDeserialization := func() interface{} { return BizFoo{} }
-	return q.SubscribeTo(makeEmptyBizFooForDeserialization, func(evt interface{}) {
-		foo, ok := evt.(*BizFoo)
-		if ok && foo != nil { // yeah tautological but explicit, we want a non-nil whatever the semantics of "ok"
-			for _, onfoo := range subscribers {
-				onfoo(foo)
-			}
-		} // else it was something other than an BizFoo arriving in this queue/channel/routing-key/yadda-yadda and we're not listening to that, we're subscribed to BizFoos here
+	makeFoo := func() interface{} { return BizFoo{} }
+	return q.SubscribeTo(makeFoo, func(ptr interface{}) {
+		foo, _ := ptr.(*BizFoo)
+		for _, onfoo := range subscribers {
+			onfoo(foo)
+		}
 	})
 }
